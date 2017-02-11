@@ -36,7 +36,7 @@ class ShapeBuilder():
     SAD_ANIMS = ["anim_bored_getout_02","anim_reacttoblock_frustrated_01","anim_bored_event_02"]
     WIN_ANIM = "anim_memorymatch_successhand_cozmo_04"
     BORED_ANIM = []
-    SERVER_IP = "127.0.0.1:5000"
+    SERVER_IP = "128.237.201.241:5000"
 
     playerNumber = -1;
     foundWinner = False
@@ -62,9 +62,12 @@ class ShapeBuilder():
             if serverWinner != 0:
                 self.foundWinner = True;
                 if serverWinner == self.playerNumber:
-                    print("YOU WIN")
+                    print("You win")
                 else:
-                    print("YOU LOST")
+                    print("LOSE");
+                    self.coz.abort_all_actions();
+                    await self.coz.play_anim("anim_memorymatch_failgame_cozmo_02").wait_for_completed()
+                    self.exit_flag = True
             await asyncio.sleep(1)
             self.conn.close()
 
@@ -148,7 +151,6 @@ class ShapeBuilder():
 
         if self.currentImage > self.TOTAL_IMAGES:
             self.exit_flag = True
-            await self.PostWinToServer();
             return;
 
         asyncio.ensure_future(self.display_shape());
@@ -420,6 +422,7 @@ class ShapeBuilder():
         await asyncio.sleep(1);
         if(self.currentImage == self.TOTAL_IMAGES):
             await self.coz.play_anim(self.WIN_ANIM).wait_for_completed()
+            await self.PostWinToServer();
         else:
             await self.coz.play_anim(self.HAPPY_ANIMS[randint(0, len(self.HAPPY_ANIMS) - 1)]).wait_for_completed()
 
