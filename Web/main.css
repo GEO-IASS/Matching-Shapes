@@ -1,0 +1,81 @@
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 200;
+    src: local('Titillium WebThin'), local(TitilliumWeb-Thin), url(https://fonts.gstatic.com/s/titilliumweb/v4/anMUvcNT0H1YN4FII8wpr3X8wLqJehFHYvczAG3afGw.ttf) format("truetype")
+}
+
+@font-face {
+    font-family: 'Intensa Fuente';
+    font-style: normal;
+    font-weight: 200;
+    src: local('Intensa Fuente'), local(Intensa Fuente-Regular), url(font.ttf) format("truetype")
+}
+
+*,
+::after,
+::before {
+    box-sizing: border-box
+}
+
+html {
+    font-size: 10px;
+    -ms-text-size-adjust: 100%;
+    -webkit-text-size-adjust: 100%;
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    background-image: url("shapes-bg.png");
+    background-repeat:no-repeat;
+    background-size:cover;
+    background-color: #90C183;
+    font-family: "Titillium Web", "Helvetia Neue", Helvetica, sans-serif;
+    font-size:13px;
+    /*-webkit-font-smoothing: antialiased;*/
+    -moz-osx-font-smoothing: grayscale;
+    width:100%;
+    height: 100%;
+    margin: 0;
+    color:#fff;
+}
+
+.title-text {
+    font-family: 'Intensa Fuente';
+    text-align: center; 
+    font-size:25px;
+    color:#0080C8;
+    margin:0px;
+}
+
+.flex {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+}
+
+.flex-center {
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+}
+
+.flex-column {
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}
+
+.container {
+    height: 100%;
+    width: 100%;
+    -webkit-box-orient: vertical;
+    -webkit-box-direction: normal;
+    -ms-flex-direction: column;
+    flex-direction: column;
+}

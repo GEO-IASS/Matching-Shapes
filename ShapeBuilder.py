@@ -31,12 +31,12 @@ class ShapeBuilder():
     CUBE_SIZE = 45
     ERROR_MARGIN = 5
     ANGLE_MARGIN = 15
-    TOTAL_IMAGES = 9
+    TOTAL_IMAGES = 8
     HAPPY_ANIMS = ["anim_freeplay_reacttoface_sayname_01","anim_memorymatch_successhand_cozmo_02","anim_rtpmemorymatch_yes_01","anim_rtpmemorymatch_yes_04"]
     SAD_ANIMS = ["anim_bored_getout_02","anim_reacttoblock_frustrated_01","anim_bored_event_02"]
     WIN_ANIM = "anim_memorymatch_successhand_cozmo_04"
     BORED_ANIM = []
-    SERVER_IP = "128.237.201.241:5000"
+    SERVER_IP = "127.0.0.1:5000"
 
     playerNumber = -1;
     foundWinner = False
@@ -77,8 +77,10 @@ class ShapeBuilder():
 
         self.exit_flag = False
 
-        await self.connectToServer();
-        asyncio.ensure_future(self.pollWinner());
+        conn_success = await self.connectToServer();
+        if conn_success:
+            asyncio.ensure_future(self.pollWinner());
+
         asyncio.ensure_future(self.start_program());
 
         # while not self.exit_flag:
@@ -95,20 +97,33 @@ class ShapeBuilder():
         response = self.conn.getresponse()
         self.conn.close();
 
-    async def connectToServer(self):
-        currentPlayerName = "Cozmo";
+    async def PostSuccessToServer(self):
 
-        self.conn = http.client.HTTPConnection(self.SERVER_IP);
-        dict = {'playername': str(currentPlayerName)}
+        dict = {'playernum': str(self.playerNumber),'number':str(self.currentImage)}
         params = json.dumps(dict);
         headers = {"Content-type": "application/json"}
-        self.conn.request("POST", "/connectToGame", params, headers)
+        self.conn.request("POST", "/success", params, headers)
         response = self.conn.getresponse()
-        data = response.read()
-        decodedData = data.decode('UTF-8')
-        datadict = ast.literal_eval(decodedData);
-        self.playerNumber = int(datadict['playerNum']);
         self.conn.close();
+
+    async def connectToServer(self):
+        currentPlayerName = "Cozmo";
+        try:
+            self.conn = http.client.HTTPConnection(self.SERVER_IP);
+            dict = {'playername': str(currentPlayerName)}
+            params = json.dumps(dict);
+            headers = {"Content-type": "application/json"}
+            self.conn.request("POST", "/connectToGame", params, headers)
+            response = self.conn.getresponse()
+            data = response.read()
+            decodedData = data.decode('UTF-8')
+            datadict = ast.literal_eval(decodedData);
+            self.playerNumber = int(datadict['playerNum']);
+            self.conn.close();
+            return True
+        except:
+            print("Server not on");
+            return False
 
     async def start_program(self):
         self.found_match = False;
@@ -140,7 +155,7 @@ class ShapeBuilder():
                 self.positions.append(self.cubes[i].pose.position);
                 self.rotations.append(self.cubes[i].pose.rotation);
 
-            self.currentImage = 8
+            self.currentImage = 0
             await self.showNextShape();
 
     async def showNextShape(self):
@@ -174,7 +189,7 @@ class ShapeBuilder():
                 self.found_match = await self.checkPattern();
             else:
                 self.still_count += 1;
-                if (self.still_count > 50000000):
+                if (self.still_count > 5):
                     self.still_count = 0
                     for cube in self.cubes:
                         cube.set_lights(Colors.RED);
@@ -297,18 +312,7 @@ class ShapeBuilder():
                     if ((abs(xz[0][2] - xz[2][2]) % 90 < self.ANGLE_MARGIN or abs(xz[0][2] - xz[2][2]) % 90 > 90 - self.ANGLE_MARGIN) and (abs(xz[0][2] - xz[1][2]) % 90 < 45 + self.ANGLE_MARGIN and abs(xz[0][2] - xz[1][2]) % 90 > 45 - self.ANGLE_MARGIN)):
                         return True
 
-        elif self.currentImage == 9:    # Tower with top block displaced
-            xz = [];
-            xz.append((self.positions[0].y,self.positions[0].z))
-            xz.append((self.positions[1].y, self.positions[1].z))
-            xz.append((self.positions[2].y, self.positions[2].z))
-
-            xz.sort(key=lambda x: x[1])
-            if (xz[1][1] - xz[0][1] > self.CUBE_SIZE - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < self.CUBE_SIZE + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > self.CUBE_SIZE - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < self.CUBE_SIZE + self.ERROR_MARGIN):
-                if(abs(xz[0][0] - xz[1][0]) < self.ERROR_MARGIN and abs(xz[2][0] - xz[0][0]) > (self.CUBE_SIZE/2) - self.ERROR_MARGIN and abs(xz[2][0] - xz[0][0]) < (self.CUBE_SIZE/2) + self.ERROR_MARGIN):
-                    return True
-
-        elif self.currentImage == 10:    # angled block
+        elif self.currentImage == 9:    # angled block
             xz = [];
             xz.append((self.rotations[0],self.positions[0].y))
             xz.append((self.rotations[1], self.positions[1].y))
@@ -418,6 +422,8 @@ class ShapeBuilder():
             resized_image = img.resize(cozmo.oled_face.dimensions(), Image.BICUBIC)
             face_image = cozmo.oled_face.convert_image_to_screen_data(resized_image, invert_image=True)
             self.coz.display_oled_face_image(face_image, 0.1 * 1000.0)
+
+        await self.PostSuccessToServer();
 
         await asyncio.sleep(1);
         if(self.currentImage == self.TOTAL_IMAGES):
