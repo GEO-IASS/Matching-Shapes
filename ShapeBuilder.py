@@ -67,7 +67,7 @@ class ShapeBuilder():
                     print("LOSE");
                     self.exit_flag = True
                     self.coz.abort_all_actions();
-                    await asyncio.sleep(0.5);
+                    await asyncio.sleep(0.2);
                     await self.coz.play_anim("anim_memorymatch_failgame_cozmo_02").wait_for_completed()
             await asyncio.sleep(1)
             self.conn.close()
@@ -156,18 +156,19 @@ class ShapeBuilder():
                 self.positions.append(self.cubes[i].pose.position);
                 self.rotations.append(self.cubes[i].pose.rotation);
 
-            self.currentImage = 0
+            self.currentImage = 7
             await self.showNextShape()
 
     async def showNextShape(self):
         self.currentImage += 1;
-        self.found_match = False
 
-        await self.coz.set_head_angle(cozmo.robot.MAX_HEAD_ANGLE / 4).wait_for_completed()
-
-        if self.currentImage > self.TOTAL_IMAGES:
+        if self.exit_flag == True or self.currentImage > self.TOTAL_IMAGES:
             self.exit_flag = True
             return;
+
+        self.found_match = False
+        
+        await self.coz.set_head_angle(cozmo.robot.MAX_HEAD_ANGLE / 4).wait_for_completed()
 
         asyncio.ensure_future(self.display_shape());
 
@@ -202,16 +203,13 @@ class ShapeBuilder():
                     self.found_match = True
 
                     if self.exit_flag == True:
-                        self.currentImage -= 1;
-                        was_success = False
-                        break;
+                        self.coz.abort_all_actions()
+                        await self.coz.play_anim(self.SAD_ANIMS[randint(0, len(self.SAD_ANIMS) - 1)]).wait_for_completed()
 
-                    self.coz.abort_all_actions()
-                    await self.coz.play_anim(self.SAD_ANIMS[randint(0, len(self.SAD_ANIMS) - 1)]).wait_for_completed()
+                        for cube in self.cubes:
+                            cube.set_lights_off();
+                        self.coz.set_backpack_lights_off();
 
-                    for cube in self.cubes:
-                        cube.set_lights_off();
-                    self.coz.set_backpack_lights_off();
                     self.currentImage -= 1;
                     was_success = False
                     break
