@@ -65,9 +65,10 @@ class ShapeBuilder():
                     print("You win")
                 else:
                     print("LOSE");
-                    self.coz.abort_all_actions();
-                    await self.coz.play_anim("anim_memorymatch_failgame_cozmo_02").wait_for_completed()
                     self.exit_flag = True
+                    self.coz.abort_all_actions();
+                    await asyncio.sleep(0.5);
+                    await self.coz.play_anim("anim_memorymatch_failgame_cozmo_02").wait_for_completed()
             await asyncio.sleep(1)
             self.conn.close()
 
@@ -155,7 +156,7 @@ class ShapeBuilder():
                 self.positions.append(self.cubes[i].pose.position);
                 self.rotations.append(self.cubes[i].pose.rotation);
 
-            self.currentImage = 0
+            self.currentImage = 7
             await self.showNextShape()
 
     async def showNextShape(self):
@@ -200,6 +201,11 @@ class ShapeBuilder():
 
                     self.found_match = True
 
+                    if self.exit_flag == True:
+                        self.currentImage -= 1;
+                        was_success = False
+                        break;
+
                     self.coz.abort_all_actions()
                     await self.coz.play_anim(self.SAD_ANIMS[randint(0, len(self.SAD_ANIMS) - 1)]).wait_for_completed()
 
@@ -234,7 +240,7 @@ class ShapeBuilder():
             z.append(self.positions[2].z)
 
             z.sort();
-            if(z[1] - z[0] > self.CUBE_SIZE - self.ERROR_MARGIN and z[1] - z[0] < self.CUBE_SIZE + self.ERROR_MARGIN and z[2] - z[1] > self.CUBE_SIZE - self.ERROR_MARGIN and z[2] - z[1] < self.CUBE_SIZE + self.ERROR_MARGIN):
+            if(abs(z[1] - z[0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(z[1] - z[0]) < self.CUBE_SIZE + self.ERROR_MARGIN and abs(z[2] - z[1]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(z[2] - z[1]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                 return True
 
         elif self.currentImage == 2:    # Letter-L
@@ -244,7 +250,7 @@ class ShapeBuilder():
             xz.append((self.positions[2].z, self.positions[2].y))
 
             xz.sort(key=lambda x: x[1])
-            if (abs(xz[1][1] - xz[0][1]) < self.ERROR_MARGIN and xz[2][1] - xz[1][1] > self.CUBE_SIZE - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < self.CUBE_SIZE + self.ERROR_MARGIN):
+            if (abs(xz[1][1] - xz[0][1]) < self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                 if((abs(xz[0][0] - xz[2][0]) < self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN) or (abs(xz[1][0] - xz[2][0]) < self.ERROR_MARGIN and abs(xz[2][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[2][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN)):
                     return True
 
@@ -255,7 +261,7 @@ class ShapeBuilder():
             xz.append((self.positions[2].z, self.positions[2].y))
 
             xz.sort(key=lambda x: x[1])
-            if (xz[1][1] - xz[0][1] > (self.CUBE_SIZE/2) - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < (self.CUBE_SIZE/2) + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > (self.CUBE_SIZE/2) - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < (self.CUBE_SIZE/2) + self.ERROR_MARGIN):
+            if (abs(xz[1][1] - xz[0][1]) > (self.CUBE_SIZE/2) - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < (self.CUBE_SIZE/2) + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > (self.CUBE_SIZE/2) - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < (self.CUBE_SIZE/2) + self.ERROR_MARGIN):
                 if(abs(xz[0][0] - xz[2][0]) < self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                     return True
 
@@ -266,7 +272,7 @@ class ShapeBuilder():
             xz.append((self.positions[2].y, self.positions[2].z))
 
             xz.sort(key=lambda x: x[1])
-            if (xz[1][1] - xz[0][1] > self.CUBE_SIZE - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < self.CUBE_SIZE + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > self.CUBE_SIZE - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < self.CUBE_SIZE + self.ERROR_MARGIN):
+            if (abs(xz[1][1] - xz[0][1]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < self.CUBE_SIZE + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                 if(abs(xz[0][0] - xz[2][0]) < self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > (self.CUBE_SIZE/2) - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < (self.CUBE_SIZE/2) + self.ERROR_MARGIN):
                     return True
 
@@ -277,7 +283,7 @@ class ShapeBuilder():
             xz.append((self.rotations[2].angle_z.degrees, self.positions[2].z))
 
             xz.sort(key=lambda x: x[1])
-            if (xz[1][1] - xz[0][1] > self.CUBE_SIZE - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < self.CUBE_SIZE + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > self.CUBE_SIZE - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < self.CUBE_SIZE + self.ERROR_MARGIN):
+            if (abs(xz[1][1] - xz[0][1]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < self.CUBE_SIZE + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                 if((abs(xz[0][0] - xz[2][0]) % 90 < self.ANGLE_MARGIN or abs(xz[0][0] - xz[2][0]) % 90 > 90-self.ANGLE_MARGIN) and (abs(xz[0][0] - xz[1][0]) % 90 < 45+self.ANGLE_MARGIN and abs(xz[0][0] - xz[1][0]) % 90 > 45-self.ANGLE_MARGIN)):
                     return True
 
@@ -288,7 +294,7 @@ class ShapeBuilder():
             xz.append((self.positions[2].z, self.positions[2].y))
 
             xz.sort(key=lambda x: x[1])
-            if (xz[1][1] - xz[0][1] > (self.CUBE_SIZE * 0.8) - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < (self.CUBE_SIZE * 0.8) + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > (self.CUBE_SIZE * 0.8) - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < (self.CUBE_SIZE*0.8) + self.ERROR_MARGIN):
+            if (abs(xz[1][1] - xz[0][1]) > (self.CUBE_SIZE * 0.8) - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < (self.CUBE_SIZE * 0.8) + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > (self.CUBE_SIZE * 0.8) - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < (self.CUBE_SIZE*0.8) + self.ERROR_MARGIN):
                 if(abs(xz[0][0] - xz[2][0]) < self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                     return True
 
@@ -299,7 +305,7 @@ class ShapeBuilder():
             xz.append((self.positions[2].z, self.positions[2].y))
 
             xz.sort(key=lambda x: x[1])
-            if (xz[1][1] - xz[0][1] > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < (self.CUBE_SIZE * 0.5) + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < (self.CUBE_SIZE*0.5) + self.ERROR_MARGIN):
+            if (abs(xz[1][1] - xz[0][1]) > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < (self.CUBE_SIZE * 0.5) + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < (self.CUBE_SIZE*0.5) + self.ERROR_MARGIN):
                 if(abs(xz[1][0] - xz[2][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[2][0]) < self.CUBE_SIZE + self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                     return True
 
@@ -308,9 +314,8 @@ class ShapeBuilder():
             xz.append((self.positions[0].z, self.positions[0].y, self.rotations[0].angle_z.degrees))
             xz.append((self.positions[1].z, self.positions[1].y, self.rotations[1].angle_z.degrees))
             xz.append((self.positions[2].z, self.positions[2].y, self.rotations[2].angle_z.degrees))
-
             xz.sort(key=lambda x: x[1])
-            if (xz[1][1] - xz[0][1] > (self.CUBE_SIZE) - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < (self.CUBE_SIZE) + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > (self.CUBE_SIZE) - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < (self.CUBE_SIZE) + self.ERROR_MARGIN):
+            if (abs(xz[1][1] - xz[0][1]) > (self.CUBE_SIZE * 1) - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < (self.CUBE_SIZE*1) + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > (self.CUBE_SIZE*1) - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < (self.CUBE_SIZE*1) + self.ERROR_MARGIN):
                 if(abs(xz[0][0] - xz[2][0]) < self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                     if ((abs(xz[0][2] - xz[2][2]) % 90 < self.ANGLE_MARGIN or abs(xz[0][2] - xz[2][2]) % 90 > 90 - self.ANGLE_MARGIN) and (abs(xz[0][2] - xz[1][2]) % 90 < 45 + self.ANGLE_MARGIN and abs(xz[0][2] - xz[1][2]) % 90 > 45 - self.ANGLE_MARGIN)):
                         return True
