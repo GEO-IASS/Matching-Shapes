@@ -11,7 +11,7 @@
   var type = '';
   var gotWinner = false;
   var playerNames = ["Player 1","Player 2"];
-  var ip = '128.237.182.252';
+  var ip = '128.237.202.46';
   window.setInterval(function(){ 
 	  $.get('http://'+ip+':5000/getCompleteCount', function(path) {
 	  		myObject = JSON.parse(path);

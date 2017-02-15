@@ -36,7 +36,7 @@ class ShapeBuilder():
     SAD_ANIMS = ["anim_bored_getout_02","anim_reacttoblock_frustrated_01","anim_bored_event_02"]
     WIN_ANIM = "anim_memorymatch_successhand_cozmo_04"
     BORED_ANIM = []
-    SERVER_IP = "127.0.0.1:5000"
+    SERVER_IP = "128.237.202.46:5000"
 
     playerNumber = -1;
     foundWinner = False
@@ -156,7 +156,7 @@ class ShapeBuilder():
                 self.rotations.append(self.cubes[i].pose.rotation);
 
             self.currentImage = 0
-            await self.showNextShape();
+            await self.showNextShape()
 
     async def showNextShape(self):
         self.currentImage += 1;
@@ -177,8 +177,11 @@ class ShapeBuilder():
             for i in range(0, len(self.cubes)):
                 pos1 = self.positions[i]
                 pos2 = self.cubes[i].pose.position
+                rot1 = self.cubes[i].pose.rotation.angle_z.degrees;
+                rot2 = self.rotations[i].angle_z.degrees;
                 dist = sqrt((pos1.x - pos2.x) ** 2 + (pos1.y - pos2.y) ** 2 + (pos1.z - pos2.z) ** 2)
-                if dist < 1:
+                distRotation = abs(rot1-rot2);
+                if dist < 1 and distRotation < 5:
                     continue;
                 did_change = True
                 self.positions[i] = self.cubes[i].pose.position;
@@ -314,13 +317,15 @@ class ShapeBuilder():
 
         elif self.currentImage == 9:    # angled block
             xz = [];
-            xz.append((self.rotations[0],self.positions[0].y))
-            xz.append((self.rotations[1], self.positions[1].y))
-            xz.append((self.rotations[2], self.positions[2].y))
+            xz.append((self.rotations[0].angle_z.degrees, self.positions[0].y, self.rotations[0]))
+            xz.append((self.rotations[1].angle_z.degrees, self.positions[1].y, self.rotations[1]))
+            xz.append((self.rotations[2].angle_z.degrees, self.positions[2].y, self.rotations[2]))
 
             xz.sort(key=lambda x: x[1])
-            print(str(xz[1][0]));
-            print(await self._quat2equatorial(xz[0][0].q0_q1_q2_q3))
+            if (xz[1][1] - xz[0][1] > (self.CUBE_SIZE * 1.1) - self.ERROR_MARGIN and xz[1][1] - xz[0][1] < (self.CUBE_SIZE * 1.1) + self.ERROR_MARGIN and xz[2][1] - xz[1][1] > (self.CUBE_SIZE * 1.1) - self.ERROR_MARGIN and xz[2][1] - xz[1][1] < (self.CUBE_SIZE * 1.1) + self.ERROR_MARGIN):
+                if ((abs(xz[0][0] - xz[2][0]) % 90 < self.ANGLE_MARGIN or abs(xz[0][0] - xz[2][0]) % 90 > 90 - self.ANGLE_MARGIN) and (abs(xz[0][0] - xz[1][0]) % 90 < self.ANGLE_MARGIN or abs(xz[0][0] - xz[1][0]) % 90 > 90 - self.ANGLE_MARGIN)):
+                    eulers = await self._quat2equatorial(xz[1][2].q0_q1_q2_q3)
+                    print(str(xz[1][2].q0_q1_q2_q3) + " - " + str(eulers));
 
         return False
 
@@ -331,64 +336,17 @@ class ShapeBuilder():
         z = q[3]
         w = q[0]
 
-        x2 = x + x
-        y2 = y + y
-        z2 = z + z
+        y = y*w - z*x
+        y2 = 2*y
+        _y = degrees(asin(y2));
 
-        xx = x * x2
-        xy = x * y2
-        xz = x * z2
+        xa = 2*(w*x + y*z)
+        xb = 1 - 2*(x*x + y*y)
+        _x = degrees(atan2(xa,xb))
 
-        yy = y * y2
-        yz = y * z2
-        zz = z * z2;
-
-        wx = w * x2
-        wy = w * y2
-        wz = w * z2;
-
-        te = [0]*16;
-        te[0] = 1 - (yy + zz);
-        te[4] = xy - wz;
-        te[8] = xz + wy;
-
-        te[1] = xy + wz;
-        te[5] = 1 - (xx + zz);
-        te[9] = yz - wx;
-
-        te[2] = xz - wy;
-        te[6] = yz + wx;
-        te[10] = 1 - (xx + yy);
-
-        te[3] = 0;
-        te[7] = 0;
-        te[11] = 0;
-
-        te[12] = 0;
-        te[13] = 0;
-        te[14] = 0;
-        te[15] = 1;
-
-        m11 = te[0]
-        m12 = te[4]
-        m13 = te[8];
-        m21 = te[1]
-        m22 = te[5]
-        m23 = te[9];
-        m31 = te[2]
-        m32 = te[6]
-        m33 = te[10];
-
-        _y = degrees(asin(max(min(m13, 1), -1)))
-
-        if (abs( m13 ) < 0.99999 ):
-
-            _x = degrees(atan2( - m23, m33 ))
-            _z = degrees(atan2( - m12, m11 ))
-
-        else:
-            _x = degrees(atan2( m32, m22 ))
-            _z = degrees(0)
+        za = 2*(z*w + x*y)
+        zb = 1-2*(y*y + z*z)
+        _z = degrees(atan2(za,zb))
 
         return [_x,_y,_z]
 
