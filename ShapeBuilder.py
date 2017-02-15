@@ -202,7 +202,7 @@ class ShapeBuilder():
 
                     self.found_match = True
 
-                    if self.exit_flag == True:
+                    if self.exit_flag == False:
                         self.coz.abort_all_actions()
                         await self.coz.play_anim(self.SAD_ANIMS[randint(0, len(self.SAD_ANIMS) - 1)]).wait_for_completed()
 
