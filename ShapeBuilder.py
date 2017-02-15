@@ -156,7 +156,7 @@ class ShapeBuilder():
                 self.positions.append(self.cubes[i].pose.position);
                 self.rotations.append(self.cubes[i].pose.rotation);
 
-            self.currentImage = 7
+            self.currentImage = 0
             await self.showNextShape()
 
     async def showNextShape(self):
