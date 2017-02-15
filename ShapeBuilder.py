@@ -167,7 +167,7 @@ class ShapeBuilder():
             return;
 
         self.found_match = False
-        
+
         await self.coz.set_head_angle(cozmo.robot.MAX_HEAD_ANGLE / 4).wait_for_completed()
 
         asyncio.ensure_future(self.display_shape());
@@ -355,7 +355,7 @@ class ShapeBuilder():
 
 
     async def display_shape(self):
-        while not self.found_match:
+        while not self.found_match and not self.exit_flag:
             image = Image.open(self.IMAGES_FOLDER + "/" + str(self.currentImage) + ".jpg")
             resized_image = image.resize(cozmo.oled_face.dimensions(), Image.BICUBIC)
             face_image = cozmo.oled_face.convert_image_to_screen_data(resized_image, invert_image=True)
