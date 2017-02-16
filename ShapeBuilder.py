@@ -10,13 +10,7 @@ import json
 from random import randint
 
 try:
-    import numpy as np
-except ImportError:
-    sys.exit("Cannot import numpy: Do `pip3 install --user numpy` to install")
-
-try:
     from PIL import Image
-    from PIL import ImageFilter
 except ImportError:
     sys.exit("Cannot import from PIL: Do `pip3 install --user Pillow` to install")
 
@@ -38,6 +32,7 @@ class ShapeBuilder():
     BORED_ANIM = []
     SERVER_IP = "128.237.202.46:5000"
 
+    isConnectedToServer = False
     playerNumber = -1;
     foundWinner = False
 
@@ -90,27 +85,27 @@ class ShapeBuilder():
         self.coz.abort_all_actions()
 
     async def PostWinToServer(self):
-
-        dict = {'playernum': str(self.playerNumber)}
-        params = json.dumps(dict);
-        headers = {"Content-type": "application/json"}
-        self.conn.request("POST", "/iAmDone", params, headers)
-        response = self.conn.getresponse()
-        self.conn.close();
+        if self.isConnectedToServer:
+            dict = {'playernum': str(self.playerNumber)}
+            params = json.dumps(dict);
+            headers = {"Content-type": "application/json"}
+            self.conn.request("POST", "/iAmDone", params, headers)
+            response = self.conn.getresponse()
+            self.conn.close();
 
     async def PostSuccessToServer(self):
-
-        dict = {'playernum': str(self.playerNumber),'number':str(self.currentImage)}
-        params = json.dumps(dict);
-        headers = {"Content-type": "application/json"}
-        self.conn.request("POST", "/success", params, headers)
-        response = self.conn.getresponse()
-        self.conn.close();
+        if self.isConnectedToServer:
+            dict = {'playernum': str(self.playerNumber),'number':str(self.currentImage)}
+            params = json.dumps(dict);
+            headers = {"Content-type": "application/json"}
+            self.conn.request("POST", "/success", params, headers)
+            response = self.conn.getresponse()
+            self.conn.close();
 
     async def connectToServer(self):
         currentPlayerName = "Cozmo";
         try:
-            self.conn = http.client.HTTPConnection(self.SERVER_IP);
+            self.conn = http.client.HTTPConnection(self.SERVER_IP, timeout=2);
             dict = {'playername': str(currentPlayerName)}
             params = json.dumps(dict);
             headers = {"Content-type": "application/json"}
@@ -121,6 +116,7 @@ class ShapeBuilder():
             datadict = ast.literal_eval(decodedData);
             self.playerNumber = int(datadict['playerNum']);
             self.conn.close();
+            self.isConnectedToServer = True
             return True
         except:
             print("Server not on");
