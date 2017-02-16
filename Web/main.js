@@ -22,7 +22,7 @@
 	  		}
 	  		str = '';
 	  		for(var i = 0 ; i < completeCounts.length ; i++) {
-	  			str = str + '<th>' + completeCounts.toString(); + "</th>";
+	  			str = str + '<th>' + completeCounts[i].toString(); + "</th>";
 	  			if(i != completeCounts.length) {
 	  				str += '<th></th>';
 	  			}
