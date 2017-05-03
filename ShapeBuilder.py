@@ -25,12 +25,12 @@ class ShapeBuilder():
     CUBE_SIZE = 45
     ERROR_MARGIN = 5
     ANGLE_MARGIN = 15
-    TOTAL_IMAGES = 8
+    TOTAL_IMAGES = 7
     HAPPY_ANIMS = ["anim_freeplay_reacttoface_sayname_01","anim_memorymatch_successhand_cozmo_02","anim_rtpmemorymatch_yes_01","anim_rtpmemorymatch_yes_04"]
     SAD_ANIMS = ["anim_bored_getout_02","anim_reacttoblock_frustrated_01","anim_bored_event_02"]
     WIN_ANIM = "anim_memorymatch_successhand_cozmo_04"
     BORED_ANIM = []
-    SERVER_IP = "128.237.202.46:5000"
+    SERVER_IP = "128.237.167.45:5000"
 
     isConnectedToServer = False
     playerNumber = -1;
@@ -292,18 +292,18 @@ class ShapeBuilder():
                 if(abs(xz[0][0] - xz[2][0]) < self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN):
                     return True
 
-        elif self.currentImage == 7:    # Staircase
-            xz = [];
-            xz.append((self.positions[0].z, self.positions[0].y))
-            xz.append((self.positions[1].z, self.positions[1].y))
-            xz.append((self.positions[2].z, self.positions[2].y))
+        # elif self.currentImage == 7:    # Staircase
+        #     xz = [];
+        #     xz.append((self.positions[0].z, self.positions[0].y))
+        #     xz.append((self.positions[1].z, self.positions[1].y))
+        #     xz.append((self.positions[2].z, self.positions[2].y))
+        #
+        #     xz.sort(key=lambda x: x[1])
+        #     if (abs(xz[1][1] - xz[0][1]) > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < (self.CUBE_SIZE * 0.5) + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < (self.CUBE_SIZE*0.5) + self.ERROR_MARGIN):
+        #         if(abs(xz[1][0] - xz[2][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[2][0]) < self.CUBE_SIZE + self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN):
+        #             return True
 
-            xz.sort(key=lambda x: x[1])
-            if (abs(xz[1][1] - xz[0][1]) > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and abs(xz[1][1] - xz[0][1]) < (self.CUBE_SIZE * 0.5) + self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) > (self.CUBE_SIZE * 0.5) - self.ERROR_MARGIN and abs(xz[2][1] - xz[1][1]) < (self.CUBE_SIZE*0.5) + self.ERROR_MARGIN):
-                if(abs(xz[1][0] - xz[2][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[2][0]) < self.CUBE_SIZE + self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) > self.CUBE_SIZE - self.ERROR_MARGIN and abs(xz[1][0] - xz[0][0]) < self.CUBE_SIZE + self.ERROR_MARGIN):
-                    return True
-
-        elif self.currentImage == 8:    # Triangle with center at an angle
+        elif self.currentImage == 7:    # Triangle with center at an angle
             xz = [];
             xz.append((self.positions[0].z, self.positions[0].y, self.rotations[0].angle_z.degrees))
             xz.append((self.positions[1].z, self.positions[1].y, self.rotations[1].angle_z.degrees))
